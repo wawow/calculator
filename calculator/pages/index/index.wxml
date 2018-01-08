@@ -68,4 +68,8 @@
             </view>
         </view>
     </view>
+	<view class="weui-btn-area" style="display:{{show}}">
+        <button class="weui-btn" type="default" open-type="share" plain="true">分享给朋友一起算</button>
+    </view>
+	<canvas class="canvas-box" canvas-id="firstCanvas"></canvas>
 </view>

@@ -7,19 +7,7 @@ var localData = require('../../localData.js');
 
 Page({
 	onShareAppMessage: function (res) {
-		if (res.from === 'button') {
-			// 来自页面内转发按钮
-			console.log(res.target)
-		}
-		return {
-			path: '/pages/index/index',
-			success: function(res) {
-				// 转发成功
-			},
-			fail: function(res) {
-				// 转发失败
-			}
-		}
+		return this.data.shareData
 	},
 	data: {
 		city : localData.City,
@@ -28,11 +16,49 @@ Page({
 		insurance : '',
 		fund : '',
 		localdata : '',
-		show : 'none'
+		show : 'none',
+		shareData : {
+			path : '/pages/index/index'
+		},
+		userInfo : {}
+	},
+	getCanvasImage:function(){
+		let t = this;
+		const ctx = wx.createCanvasContext('firstCanvas');
+		ctx.drawImage('../../static/images/qrcode.jpg',0,0,200,160);
+		ctx.draw()
 	},
 	onLoad:function () {
 		var t = this;
 		t.getCity();
+	},
+	getImage:function(){
+		var t = this;
+		wx.canvasToTempFilePath({
+			x: 0,
+			y: 0,
+			width: 200,
+			height: 160,
+			destWidth: 200,
+			destHeight: 160,
+			canvasId: 'firstCanvas',
+			success : (res) => {
+				wx.saveFile({
+					tempFilePath: res.tempFilePath,
+					success:(res) => {
+						//更新分享标题
+						t.setData({
+							shareData : {
+								imageUrl : res.savedFilePath
+							}
+						});
+					}
+				});
+			},
+			fail : (e) =>{
+				console.log(e)
+			}
+		})
 	},
 	count:function () {
 		let t = this,
@@ -72,13 +98,14 @@ Page({
 				gjjBl : util.formatNum(t.data.localdata.gjjBl * 100),
 				show : 'block'
 			});
+			t.getImage();
 		}
 	},
 	getCity:function () {
 		let t = this;
 		var myAmapFun = new amapFile.AMapWX({key:'536e0fcadf78c63f2ad7f413a672462e'});
 		myAmapFun.getRegeo({
-			success: function(data){
+			success:(data) => {
 				let city = data[0].regeocodeData.addressComponent.province;
 				for(var i=0;i<localData.City.length;i++){
 					if(city == localData.City[i]){
@@ -93,13 +120,15 @@ Page({
 					}
 				}
 				t.getCityData(city);
+				t.getCanvasImage();
 			},
-			fail: function(){
+			fail: () => {
 				t.openToast('定位失败，请手动选择城市！');
 				t.setData({
 					cityIndex: 0
 				});
 				t.getCityData('北京市');
+				t.getCanvasImage();
 			}
 		});
 	},
