@@ -22,15 +22,45 @@ Page({
 		},
 		userInfo : {}
 	},
+	getUserInfo(){
+		var t = this;
+		wx.getUserInfo({
+			success: function(res) {
+				var data = res.userInfo
+				var nickName = data.nickName
+				var avatarUrl = data.avatarUrl
+				wx.downloadFile({
+					url: avatarUrl,
+					success: function(res) {
+						if (res.statusCode === 200) {
+							t.setData({
+								userInfo : {
+									nickName : nickName,
+									avatarUrl : res.tempFilePath
+								}
+							});
+						}
+					}
+				});
+			}
+		})
+	},
 	getCanvasImage:function(){
 		let t = this;
 		const ctx = wx.createCanvasContext('firstCanvas');
+		ctx.save()
 		ctx.drawImage('../../static/images/qrcode.jpg',0,0,200,160);
+		ctx.restore()
+		ctx.arc(100, 80, 35, 0, 2*Math.PI)
+		ctx.clip()
+		ctx.drawImage(t.data.userInfo.avatarUrl,65,45,70,70);
+		ctx.restore()
 		ctx.draw()
 	},
 	onLoad:function () {
 		var t = this;
 		t.getCity();
+		t.getUserInfo();
 	},
 	getImage:function(){
 		var t = this;
