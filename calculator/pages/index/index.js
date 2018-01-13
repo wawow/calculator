@@ -3,19 +3,19 @@
 const app = getApp();
 var util = require('../../utils/util.js');
 var amapFile = require('../../utils/amap-wx.js');
-var localData = require('../../localData.js');
 
 Page({
 	onShareAppMessage: function (res) {
 		return this.data.shareData
 	},
 	data: {
-		city : localData.City,
+		city : [],
+		citydata : [],
 		cityIndex : '',
 		money: '',
 		insurance : '',
 		fund : '',
-		localdata : '',
+		localdata : [],
 		show : 'none',
 		shareData : {
 			path : '/pages/index/index'
@@ -59,8 +59,21 @@ Page({
 	},
 	onLoad:function () {
 		var t = this;
-		t.getCity();
 		t.getUserInfo();
+		wx.request({
+			url: 'https://www.maxappa.com/api/city.php',
+			success: function(res) {
+				var City = [];
+				for(var i=0;i<res.data.length;i++){
+					City.push(res.data[i].city);
+				}
+				t.setData({
+					city : City,
+					citydata : res.data
+				});
+				t.getCity();
+			}
+		});
 	},
 	getImage:function(){
 		var t = this;
@@ -137,11 +150,12 @@ Page({
 		myAmapFun.getRegeo({
 			success:(data) => {
 				let city = data[0].regeocodeData.addressComponent.province;
-				for(var i=0;i<localData.City.length;i++){
-					if(city == localData.City[i]){
+				for(var i=0;i<t.data.city.length;i++){
+					if(city == t.data.city[i]){
 						t.setData({
 							cityIndex: i
 						});
+						t.getCityData(city);
 					}else{
 						t.setData({
 							cityIndex: 0
@@ -149,7 +163,7 @@ Page({
 						t.getCityData('北京市');
 					}
 				}
-				t.getCityData(city);
+
 				t.getCanvasImage();
 			},
 			fail: () => {
@@ -165,12 +179,12 @@ Page({
 	getCityData:function (city) {
 		let t = this,
 			data = t.data;
-		for(var i=0;i<localData.localData.length;i++){
-			if(city == localData.localData[i].city){
+		for(var i=0;i<data.citydata.length;i++){
+			if(city == data.citydata[i].city){
 				t.setData({
-					localdata : localData.localData[i],
-					insurance : t.getBase(data.money,localData.localData[i].sbMin,localData.localData[i].sbMax),
-					fund : t.getBase(data.money,localData.localData[i].gjjMin,localData.localData[i].gjjMax)
+					localdata : data.citydata[i],
+					insurance : t.getBase(data.money,data.citydata[i].sbMin,data.citydata[i].sbMax),
+					fund : t.getBase(data.money,data.citydata[i].gjjMin,data.citydata[i].gjjMax)
 				});
 			}
 		}
@@ -181,8 +195,8 @@ Page({
 			money = e.detail.value;
 		t.setData({
 			money: money,
-			insurance : t.getBase(money,data.localdata.sbMin,data.localdata.sbMax),
-			fund : t.getBase(money,data.localdata.gjjMin,data.localdata.gjjMax)
+			insurance : t.getBase(money,data.citydata.sbMin,data.citydata.sbMax),
+			fund : t.getBase(money,data.citydata.gjjMin,data.citydata.gjjMax)
 		});
 	},
 	setInsurance:function (e) {
@@ -236,6 +250,6 @@ Page({
 			cityIndex: e.detail.value,
 			show : 'none'
 		});
-		this.getCityData(localData.City[e.detail.value]);
+		this.getCityData(this.data.city[e.detail.value]);
 	}
 })
