@@ -3,25 +3,69 @@
 const app = getApp();
 var util = require('../../utils/util.js');
 var amapFile = require('../../utils/amap-wx.js');
-var localData = require('../../localData.js');
+var sliderWidth = 96;
 
 Page({
 	onShareAppMessage: function (res) {
 		return this.data.shareData
 	},
 	data: {
-		city : localData.City,
+		tabs: ["个税计算", "年终计算"],
+		activeIndex: 0,
+        sliderOffset: 0,
+        sliderLeft: 0,
+		city : [],
+		citydata : [],
 		cityIndex : '',
 		money: '',
 		insurance : '',
 		fund : '',
-		localdata : '',
+		localdata : [],
 		show : 'none',
+		showYear : 'none',
 		shareData : {
 			path : '/pages/index/index'
 		},
-		userInfo : {}
+		userInfo : {},
+		yearAwardAfter : '',
+		yearAward : ''
 	},
+	onLoad() {
+		var t = this;
+		wx.getSystemInfo({
+            success: function(res) {
+                t.setData({
+                    sliderLeft: (res.windowWidth / t.data.tabs.length - sliderWidth) / 2,
+                    sliderOffset: res.windowWidth / t.data.tabs.length * t.data.activeIndex
+                });
+            }
+        });
+		t.getUserInfo();
+		wx.request({
+			url: 'https://www.maxappa.com/api/city.php',
+			success: function(res) {
+				var City = [];
+				for(var i=0;i<res.data.length;i++){
+					City.push(res.data[i].city);
+				}
+				t.setData({
+					city : City,
+					citydata : res.data
+				});
+				t.getCity();
+			}
+		});
+	},
+	tabClick(e) {
+        this.setData({
+            sliderOffset: e.currentTarget.offsetLeft,
+            activeIndex: e.currentTarget.id,
+			money : '',
+			yearAward : '',
+			show : 'none',
+			showYear : 'none',
+        });
+    },
 	getUserInfo(){
 		var t = this;
 		wx.getUserInfo({
@@ -45,7 +89,7 @@ Page({
 			}
 		})
 	},
-	getCanvasImage:function(){
+	getCanvasImage(){
 		let t = this;
 		const ctx = wx.createCanvasContext('firstCanvas');
 		ctx.save()
@@ -55,14 +99,10 @@ Page({
 		ctx.clip()
 		ctx.drawImage(t.data.userInfo.avatarUrl,65,45,70,70);
 		ctx.restore()
-		ctx.draw()
+		ctx.draw();
+		t.getImage();
 	},
-	onLoad:function () {
-		var t = this;
-		t.getCity();
-		t.getUserInfo();
-	},
-	getImage:function(){
+	getImage(){
 		var t = this;
 		wx.canvasToTempFilePath({
 			x: 0,
@@ -90,7 +130,8 @@ Page({
 			}
 		})
 	},
-	count:function () {
+	count() {
+		//获取税后工资
 		let t = this,
 			data = t.data,
 			money = data.money,
@@ -105,13 +146,13 @@ Page({
 		//获取用户缴纳对应金额
 		var	yanglao = t.getBase(insurance,localdata.sbMin,localdata.sbMax,0.08),
 			yiliao = t.getBase(insurance,localdata.sbMin,localdata.sbMax,0.02),
-			shiye = t.getBase(insurance,localdata.sbMin,localdata.sbMax,0.002),
+			shiye = t.getBase(insurance,localdata.sbMin,localdata.sbMax,0.005),
 			zhufang = t.getBase(fund,localdata.gjjMin,localdata.gjjMax,localdata.gjjBl),
 			shuiqian = util.formatNum(money - yanglao - yiliao - shiye - zhufang),
 			individualIncomeTax = util.formatNum(t.getTax(shuiqian)),
 			postTaxWage = util.formatNum(shuiqian - individualIncomeTax);
 
-		if(money == ''){
+		if(money == '' && t.data.activeIndex == 0){
 			t.openToast('请输入月薪');
 			t.setData({
 				show : 'none'
@@ -128,20 +169,42 @@ Page({
 				gjjBl : util.formatNum(t.data.localdata.gjjBl * 100),
 				show : 'block'
 			});
-			t.getImage();
+			t.getCanvasImage();
 		}
 	},
-	getCity:function () {
+	countYearAward() {
+		//获取年终奖
+		let t = this,
+			data = t.data,
+			yearAward = data.yearAward;
+		var yearAwardAfter = util.formatNum(t.getYearTax(yearAward));
+		if(yearAward == '' && t.data.activeIndex == 1){
+			t.openToast('请输入年终奖金');
+			t.setData({
+				showYear : 'none'
+			});
+			return false;
+		}else{
+			t.setData({
+				yearAwardAfter : yearAwardAfter,
+				showYear : 'block'
+			});
+			t.getCanvasImage();
+		}
+	},
+	getCity() {
 		let t = this;
 		var myAmapFun = new amapFile.AMapWX({key:'536e0fcadf78c63f2ad7f413a672462e'});
 		myAmapFun.getRegeo({
 			success:(data) => {
+				console.log(data)
 				let city = data[0].regeocodeData.addressComponent.province;
-				for(var i=0;i<localData.City.length;i++){
-					if(city == localData.City[i]){
+				for(var i=0;i<t.data.city.length;i++){
+					if(city == t.data.city[i]){
 						t.setData({
 							cityIndex: i
 						});
+						t.getCityData(city);
 					}else{
 						t.setData({
 							cityIndex: 0
@@ -149,8 +212,6 @@ Page({
 						t.getCityData('北京市');
 					}
 				}
-				t.getCityData(city);
-				t.getCanvasImage();
 			},
 			fail: () => {
 				t.openToast('定位失败，请手动选择城市！');
@@ -158,24 +219,23 @@ Page({
 					cityIndex: 0
 				});
 				t.getCityData('北京市');
-				t.getCanvasImage();
 			}
 		});
 	},
-	getCityData:function (city) {
+	getCityData(city) {
 		let t = this,
 			data = t.data;
-		for(var i=0;i<localData.localData.length;i++){
-			if(city == localData.localData[i].city){
+		for(var i=0;i<data.citydata.length;i++){
+			if(city == data.citydata[i].city){
 				t.setData({
-					localdata : localData.localData[i],
-					insurance : t.getBase(data.money,localData.localData[i].sbMin,localData.localData[i].sbMax),
-					fund : t.getBase(data.money,localData.localData[i].gjjMin,localData.localData[i].gjjMax)
+					localdata : data.citydata[i],
+					insurance : t.getBase(data.money,data.citydata[i].sbMin,data.citydata[i].sbMax),
+					fund : t.getBase(data.money,data.citydata[i].gjjMin,data.citydata[i].gjjMax)
 				});
 			}
 		}
 	},
-	setMoney:function (e) {
+	setMoney(e) {
 		var t = this,
 			data = t.data,
 			money = e.detail.value;
@@ -185,17 +245,25 @@ Page({
 			fund : t.getBase(money,data.localdata.gjjMin,data.localdata.gjjMax)
 		});
 	},
-	setInsurance:function (e) {
+	setYearAward(e){
+		var t = this,
+			data = t.data,
+			yearAward = e.detail.value;
+		t.setData({
+			yearAward: yearAward
+		});
+	},
+	setInsurance(e) {
 		this.setData({
 			insurance : e.detail.value
 		});
 	},
-	setFund:function (e) {
+	setFund(e) {
 		this.setData({
 			fund : e.detail.value
 		});
 	},
-	getBase:function (money,min,max,scale) {
+	getBase(money,min,max,scale) {
 		var scale = scale || 1;
 		if(money < min){
 			return util.formatNum(min * scale);
@@ -205,7 +273,7 @@ Page({
 			return util.formatNum(money * scale);
 		}
 	},
-	getTax:function(money){
+	getTax(money){
 		var money = money - 3500;
 		if(money <= 0){
 			return 0;
@@ -225,17 +293,37 @@ Page({
 			return (util.formatNum(money*0.45))-13505
 		}
 	},
-	openToast: function (name) {
+	getYearTax(money){
+		var moneyMonth = money / 12;
+		if(moneyMonth <= 0){
+			return 0;
+		}else if(moneyMonth > 0 && moneyMonth <= 1500){
+			return util.formatNum(money - (money * 0.03))
+		}else if(moneyMonth > 1500 && moneyMonth <= 4500){
+			return util.formatNum(money - (money * 0.1 - 105))
+		}else if(moneyMonth > 4500 && moneyMonth <= 9000){
+			return util.formatNum(money - (money * 0.2 - 555))
+		}else if(moneyMonth > 9000 && moneyMonth <= 35000){
+			return util.formatNum(money - (money * 0.25 - 1005))
+		}else if(moneyMonth > 35000 && moneyMonth <= 55000){
+			return util.formatNum(money - (money * 0.3 - 2755))
+		}else if(moneyMonth > 55000 && moneyMonth <= 80000){
+			return util.formatNum(money - (money * 0.35 - 5505))
+		}else if(moneyMonth > 80000){
+			return util.formatNum(money - (money * 0.45 - 13505))
+		}
+	},
+	openToast(name) {
 		wx.showModal({
 			content: name,
 			showCancel : false
 		})
 	},
-	changeCity: function (e) {
+	changeCity(e) {
 		this.setData({
 			cityIndex: e.detail.value,
 			show : 'none'
 		});
-		this.getCityData(localData.City[e.detail.value]);
+		this.getCityData(this.data.city[e.detail.value]);
 	}
 })

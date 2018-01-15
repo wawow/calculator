@@ -1,0 +1,72 @@
+<!--index.wxml-->
+<view class="page">
+	<view class="weui-tab">
+		<view class="weui-navbar">
+			<block wx:for="{{tabs}}" wx:key="*this">
+				<view id="{{index}}" class="weui-navbar__item {{activeIndex == index ? 'weui-bar__item_on' : ''}}" bindtap="tabClick">
+					<view class="weui-navbar__title">{{item}}</view>
+				</view>
+			</block>
+			<view class="weui-navbar__slider" style="left: {{sliderLeft}}px; transform: translateX({{sliderOffset}}px); -webkit-transform: translateX({{sliderOffset}}px);"></view>
+		</view>
+		<view class="weui-tab__panel page__hd">
+			<view class="weui-tab__content" hidden="{{activeIndex != 0}}">
+				<view class="weui-panel">
+					<view class="weui-cells__title">工资个人所得税税率表</view>
+					<view class="table">
+						<view class="tr bg-w">
+							<view class="th">级数</view>
+							<view class="th">应纳税所得额</view>
+							<view class="th ">税率</view>
+							<view class="th ">速算扣除数</view>
+						</view>
+						<block wx:for="{{yearData}}" wx:key="{{id}}">
+							<view class="tr bg-g" wx:if="{{index % 2 == 0}}">
+								<view class="td">{{item.id}}</view>
+								<view class="td">{{item.value}}</view>
+								<view class="td">{{item.scale}}</view>
+								<view class="td">{{item.num}}</view>
+							</view>
+							<view class="tr" wx:else>
+								<view class="td">{{item.id}}</view>
+								<view class="td">{{item.value}}</view>
+								<view class="td">{{item.scale}}</view>
+								<view class="td">{{item.num}}</view>
+							</view>
+						</block>
+					</view>
+				</view>
+			</view>
+			<view class="weui-tab__content" hidden="{{activeIndex != 1}}">
+				<view class="weui-panel">
+					<view class="weui-cells__title">年终奖个人所得税税率表</view>
+					<view class="table">
+						<view class="tr bg-w">
+							<view class="th">级数</view>
+							<view class="th">平均每月收入</view>
+							<view class="th ">税率</view>
+							<view class="th ">速算扣除数</view>
+						</view>
+						<block wx:for="{{yearData}}" wx:key="{{id}}">
+							<view class="tr bg-g" wx:if="{{index % 2 == 0}}">
+								<view class="td">{{item.id}}</view>
+								<view class="td">{{item.value}}</view>
+								<view class="td">{{item.scale}}</view>
+								<view class="td">{{item.num}}</view>
+							</view>
+							<view class="tr" wx:else>
+								<view class="td">{{item.id}}</view>
+								<view class="td">{{item.value}}</view>
+								<view class="td">{{item.scale}}</view>
+								<view class="td">{{item.num}}</view>
+							</view>
+						</block>
+					</view>
+				</view>
+			</view>
+		</view>
+	</view>
+	<view class="weui-btn-area">
+		<navigator url="/pages/index/index" open-type="redirect" class="tips-btn">返回主页</navigator>
+	</view>
+</view>
