@@ -1,11 +1,11 @@
 <scroll-view scroll-y style="height: {{windowHeight}}" scroll-into-view="{{alpha}}">
     <view class="alphabet">
-        <view class="now-city">
-            <text>定位城市</text>
-            <text class="now-city-name" bindtap="handlerCity" data-text="杭州">杭州</text>
-        </view>
+        <!--<view class="now-city">-->
+            <!--<text>定位城市</text>-->
+            <!--<text class="now-city-name" bindtap="handlerCity" data-text="杭州">杭州</text>-->
+        <!--</view>-->
         <view class="alphabet-list">
-            <view wx:for="{{list}}" wx:key="unique" id="{{item.alphabet}}" class="section-item" wx:if="{{index!=0}}">
+            <view wx:for="{{list}}" wx:key="unique" id="{{item.alphabet}}" class="section-item">
                 <view class="section-item-header">
                     {{item.alphabet}}
                 </view>
