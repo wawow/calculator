@@ -17,9 +17,14 @@
 							<view class="weui-label">城市</view>
 						</view>
 						<view class="weui-cell__bd">
-							<picker bindchange="changeCity" value="{{cityIndex}}" range="{{city}}">
-								<view class="weui-select weui-select_in-select-after">{{city[cityIndex]}}</view>
-							</picker>
+							<view class="weui-panel_access">
+					            <view class="weui-panel__ft">
+					                <navigator url="/pages/switchcity/switchcity" class="weui-cell weui-cell_access" open-type="redirect">
+					                    {{city}}
+					                    <view class="weui-cell__ft weui-cell__ft_in-access"></view>
+					                </navigator>
+					            </view>
+					        </view>
 						</view>
 					</view>
 					<view class="weui-cell weui-cell_input">
@@ -62,19 +67,19 @@
 							<view class="weui-cell__ft">￥{{individualIncomeTax}}</view>
 						</view>
 						<view class="weui-cell">
-							<view class="weui-cell__bd">养老保险金(8%)</view>
+							<view class="weui-cell__bd">养老保险金({{citydata.e*100}}%)</view>
 							<view class="weui-cell__ft">￥{{yanglao}}</view>
 						</view>
 						<view class="weui-cell">
-							<view class="weui-cell__bd">医疗保险金(2%)</view>
+							<view class="weui-cell__bd">医疗保险金({{citydata.m*100}}%)</view>
 							<view class="weui-cell__ft">￥{{yiliao}}</view>
 						</view>
 						<view class="weui-cell">
-							<view class="weui-cell__bd">失业保险金(0.2%)</view>
+							<view class="weui-cell__bd">失业保险金({{citydata.u*100}}%)</view>
 							<view class="weui-cell__ft">￥{{shiye}}</view>
 						</view>
 						<view class="weui-cell">
-							<view class="weui-cell__bd">住房公积金({{gjjBl}}%)</view>
+							<view class="weui-cell__bd">住房公积金({{citydata.f*100}}%)</view>
 							<view class="weui-cell__ft">￥{{zhufang}}</view>
 						</view>
 					</view>
@@ -114,6 +119,5 @@
 			</view>
 		</view>
 	</view>
-	<navigator url="/pages/switchcity/switchcity" open-type="redirect" class="tips-btn">城市选择</navigator>
 	<canvas class="canvas-box" canvas-id="firstCanvas"></canvas>
 </view>

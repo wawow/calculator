@@ -10,7 +10,8 @@
                     {{item.alphabet}}
                 </view>
                 <view wx:for="{{item.datas}}" wx:key="unique" wx:for-item="cell" wx:for-index="cellIndex" class="section-item-cells">
-                <view bindtap="handlerCity" data-text="{{cell}}" class="section-item-cell {{cellIndex != (item.datas.length-1) ? 'border-bottom':''}}">{{cell}}</view>
+                    <navigator url="/pages/index/index?city={{cell}}" class="section-item-cell {{cellIndex != (item.datas.length-1) ? 'border-bottom':''}}" open-type="redirect">{{cell}}</navigator>
+                    
                 </view>
             </view>
         </view>

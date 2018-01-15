@@ -8,6 +8,33 @@
 .page__hd{
 	padding:50px 0;
 }
+.weui-cell__ft_in-access:after{
+	border-width:0 2px 2px 0;
+	margin-top:-5px;
+	right:-1px;
+}
+.weui-cell_access{
+	padding:10px 0;
+}
+.city{
+	width:100%;
+}
+.city span{
+	display:block;
+	content:" ";
+	height:6px;
+	width:6px;
+	border-width:0 2px 2px 0;
+	margin-top:-5px;
+	right:-1px;
+	border-color:#c8c8cd;
+	border-style:solid;
+	-webkit-transform:matrix(.71,.71,-.71,.71,0,0);
+	transform:matrix(.71,.71,-.71,.71,0,0);
+	top:-2px;
+	padding-right:13px;
+	position:relative;
+}
 .tips-btn{
 	color:#353535;
 	border:1px solid #353535;

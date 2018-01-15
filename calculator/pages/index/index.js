@@ -14,13 +14,21 @@ Page({
 		activeIndex: 0,
         sliderOffset: 0,
         sliderLeft: 0,
-		city : [],
-		citydata : [],
-		cityIndex : '',
-		money: '',
+		city : '请选择城市',
+		citydata : {
+			e : '', //社保基数
+			f : '', //公积金基数
+			m : '', //医疗基数
+			u : '', //失业基数
+			wage : '', //当地平均工资
+			wageMax : '', //当地工资上限
+			wageMin : '', //当地工资下限
+			gjjMax : '', //公积金最大
+			gjjMin : '' //公积金最小
+		},
 		insurance : '',
 		fund : '',
-		localdata : [],
+		money: '',
 		show : 'none',
 		showYear : 'none',
 		shareData : {
@@ -28,9 +36,10 @@ Page({
 		},
 		userInfo : {},
 		yearAwardAfter : '',
-		yearAward : ''
+		yearAward : '',
+		isSpecial : true
 	},
-	onLoad() {
+	onLoad(option) {
 		var t = this;
 		wx.getSystemInfo({
             success: function(res) {
@@ -41,31 +50,127 @@ Page({
             }
         });
 		t.getUserInfo();
-		wx.request({
-			url: 'https://www.maxappa.com/api/city.php',
-			success: function(res) {
-				var City = [];
-				for(var i=0;i<res.data.length;i++){
-					City.push(res.data[i].city);
-				}
+		t.getCity(option);
+	},
+	getCity(option) {
+		let t = this;
+		var myAmapFun = new amapFile.AMapWX({key:'536e0fcadf78c63f2ad7f413a672462e'});
+		myAmapFun.getRegeo({
+			success:(data) => {
+				let city = option.city || data[0].regeocodeData.addressComponent.province;
+				wx.request({
+				    url: 'https://www.maxappa.com/api/wage.php',
+				    data:{
+					    all : 'city'
+				    },
+				    success: function(res) {
+						for(var i = 0;i<res.data.length;i++){
+							if(!(city.indexOf(res.data[i].s))){
+								var cityName = res.data[i].s;
+								t.setData({
+									city: cityName
+								});
+							}
+						}
+						t.getCityData(cityName);
+				    }
+			    });
+
+			},
+			fail: () => {
+				t.openToast('定位失败，请手动选择城市！');
 				t.setData({
-					city : City,
-					citydata : res.data
+					city: '北京'
 				});
-				t.getCity();
+				t.getCityData('北京');
 			}
 		});
 	},
-	tabClick(e) {
-        this.setData({
-            sliderOffset: e.currentTarget.offsetLeft,
-            activeIndex: e.currentTarget.id,
-			money : '',
-			yearAward : '',
-			show : 'none',
-			showYear : 'none',
-        });
-    },
+	getCityData(city){
+		let t = this;
+		wx.request({
+		    url: 'https://www.maxappa.com/api/wage.php',
+		    data:{
+		        city : city
+		    },
+		    success: function(res) {
+		        t.setData({
+		            citydata : {
+		                e : res.data.e/100,
+		                f : res.data.f/100,
+		                m : res.data.m/100,
+		                u : res.data.u/100,
+		                wage : util.formatNum(res.data.money),
+		                wageMax : !(res.data.max_base_3j == undefined) ? util.formatNum(res.data.max_base_3j) : util.formatNum(res.data.money*3),
+		                wageMin : !(res.data.min_base_3j == undefined) ? util.formatNum(res.data.min_base_3j) : util.formatNum(res.data.money*0.6),
+		                gjjMax : !(res.data.max_base_gjj == undefined) ? util.formatNum(res.data.max_base_gjj) : util.formatNum(res.data.money*3),
+		                gjjMin : !(res.data.min_base_gjj == undefined) ? util.formatNum(res.data.min_base_gjj) : util.formatNum(res.data.money*0.6)
+		            }
+		        });
+		    }
+		});
+	},
+	count() {
+		//获取税后工资
+		let t = this,
+			data = t.data,
+			money = data.money,
+			citydata = data.citydata;
+		//公积金、社保如果用户自定义以自定义为主
+		var insurance = t.getBase(data.insurance,citydata.wageMin,citydata.wageMax),
+			fund = t.getBase(data.fund,citydata.gjjMin,citydata.gjjMax);
+		t.setData({
+			insurance : insurance,
+			fund : fund
+		});
+		//获取用户缴纳对应金额
+		var	yanglao = t.getBase(insurance,citydata.wageMin,citydata.wageMax,citydata.e),
+			yiliao = t.getBase(insurance,citydata.wageMin,citydata.wageMax,citydata.m) + 3,
+			shiye = t.getBase(insurance,citydata.wageMin,citydata.wageMax,citydata.u),
+			zhufang = t.getBase(fund,citydata.gjjMin,citydata.gjjMax,citydata.f),
+			shuiqian = util.formatNum(money - yanglao - yiliao - shiye - zhufang),
+			individualIncomeTax = util.formatNum(t.getTax(shuiqian)),
+			postTaxWage = util.formatNum(shuiqian - individualIncomeTax);
+		if(money == '' && t.data.activeIndex == 0){
+			t.openToast('请输入月薪');
+			t.setData({
+				show : 'none'
+			});
+			return false;
+		}else{
+			t.setData({
+				yanglao: yanglao,
+				yiliao: yiliao,
+				shiye: shiye,
+				zhufang: zhufang,
+				postTaxWage: postTaxWage,
+				individualIncomeTax : individualIncomeTax,
+				gjjBl : util.formatNum(citydata.f * 100),
+				show : 'block'
+			});
+			t.getCanvasImage();
+		}
+	},
+	countYearAward() {
+		//获取年终奖
+		let t = this,
+			data = t.data,
+			yearAward = data.yearAward;
+		var yearAwardAfter = util.formatNum(t.getYearTax(yearAward));
+		if(yearAward == '' && t.data.activeIndex == 1){
+			t.openToast('请输入年终奖金');
+			t.setData({
+				showYear : 'none'
+			});
+			return false;
+		}else{
+			t.setData({
+				yearAwardAfter : yearAwardAfter,
+				showYear : 'block'
+			});
+			t.getCanvasImage();
+		}
+	},
 	getUserInfo(){
 		var t = this;
 		wx.getUserInfo({
@@ -130,119 +235,14 @@ Page({
 			}
 		})
 	},
-	count() {
-		//获取税后工资
-		let t = this,
-			data = t.data,
-			money = data.money,
-			localdata = data.localdata;
-		//公积金、社保如果用户自定义以自定义为主
-		var insurance = t.getBase(data.insurance,localdata.sbMin,localdata.sbMax),
-			fund = t.getBase(data.fund,localdata.gjjMin,localdata.gjjMax);
-		t.setData({
-			insurance : insurance,
-			fund : fund
-		});
-		//获取用户缴纳对应金额
-		var	yanglao = t.getBase(insurance,localdata.sbMin,localdata.sbMax,0.08),
-			yiliao = t.getBase(insurance,localdata.sbMin,localdata.sbMax,0.02),
-			shiye = t.getBase(insurance,localdata.sbMin,localdata.sbMax,0.005),
-			zhufang = t.getBase(fund,localdata.gjjMin,localdata.gjjMax,localdata.gjjBl),
-			shuiqian = util.formatNum(money - yanglao - yiliao - shiye - zhufang),
-			individualIncomeTax = util.formatNum(t.getTax(shuiqian)),
-			postTaxWage = util.formatNum(shuiqian - individualIncomeTax);
-
-		if(money == '' && t.data.activeIndex == 0){
-			t.openToast('请输入月薪');
-			t.setData({
-				show : 'none'
-			});
-			return false;
-		}else{
-			t.setData({
-				yanglao: yanglao,
-				yiliao: yiliao,
-				shiye: shiye,
-				zhufang: zhufang,
-				postTaxWage: postTaxWage,
-				individualIncomeTax : individualIncomeTax,
-				gjjBl : util.formatNum(t.data.localdata.gjjBl * 100),
-				show : 'block'
-			});
-			t.getCanvasImage();
-		}
-	},
-	countYearAward() {
-		//获取年终奖
-		let t = this,
-			data = t.data,
-			yearAward = data.yearAward;
-		var yearAwardAfter = util.formatNum(t.getYearTax(yearAward));
-		if(yearAward == '' && t.data.activeIndex == 1){
-			t.openToast('请输入年终奖金');
-			t.setData({
-				showYear : 'none'
-			});
-			return false;
-		}else{
-			t.setData({
-				yearAwardAfter : yearAwardAfter,
-				showYear : 'block'
-			});
-			t.getCanvasImage();
-		}
-	},
-	getCity() {
-		let t = this;
-		var myAmapFun = new amapFile.AMapWX({key:'536e0fcadf78c63f2ad7f413a672462e'});
-		myAmapFun.getRegeo({
-			success:(data) => {
-				console.log(data)
-				let city = data[0].regeocodeData.addressComponent.province;
-				for(var i=0;i<t.data.city.length;i++){
-					if(city == t.data.city[i]){
-						t.setData({
-							cityIndex: i
-						});
-						t.getCityData(city);
-					}else{
-						t.setData({
-							cityIndex: 0
-						});
-						t.getCityData('北京市');
-					}
-				}
-			},
-			fail: () => {
-				t.openToast('定位失败，请手动选择城市！');
-				t.setData({
-					cityIndex: 0
-				});
-				t.getCityData('北京市');
-			}
-		});
-	},
-	getCityData(city) {
-		let t = this,
-			data = t.data;
-		for(var i=0;i<data.citydata.length;i++){
-			if(city == data.citydata[i].city){
-				t.setData({
-					localdata : data.citydata[i],
-					insurance : t.getBase(data.money,data.citydata[i].sbMin,data.citydata[i].sbMax),
-					fund : t.getBase(data.money,data.citydata[i].gjjMin,data.citydata[i].gjjMax)
-				});
-			}
-		}
-	},
 	setMoney(e) {
 		var t = this,
 			data = t.data,
 			money = e.detail.value;
 		t.setData({
 			money: money,
-			insurance : t.getBase(money,data.localdata.sbMin,data.localdata.sbMax),
-			fund : t.getBase(money,data.localdata.gjjMin,data.localdata.gjjMax)
+			insurance : t.getBase(money,data.citydata.wageMin,data.citydata.wageMax),
+			fund : t.getBase(money,data.citydata.gjjMin,data.citydata.gjjMax)
 		});
 	},
 	setYearAward(e){
@@ -319,11 +319,14 @@ Page({
 			showCancel : false
 		})
 	},
-	changeCity(e) {
-		this.setData({
-			cityIndex: e.detail.value,
-			show : 'none'
-		});
-		this.getCityData(this.data.city[e.detail.value]);
-	}
+	tabClick(e) {
+        this.setData({
+            sliderOffset: e.currentTarget.offsetLeft,
+            activeIndex: e.currentTarget.id,
+			money : '',
+			yearAward : '',
+			show : 'none',
+			showYear : 'none',
+        });
+    }
 })
