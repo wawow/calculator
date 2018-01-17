@@ -16,10 +16,14 @@ Page({
         sliderLeft: 0,
 		city : '请选择城市',
 		citydata : {
-			e : '', //社保基数
-			f : '', //公积金基数
-			m : '', //医疗基数
-			u : '', //失业基数
+			yanglao : '', //养老金
+			gjj : '', //公积金
+			yiliao : '', //医保
+			shiye : '', //失业
+			yanglaoBl : '', //社保基数
+			gjjBl : '', //公积金基数
+			yiliaoBl : '', //医疗基数
+			shiyeBl : '', //失业基数
 			wage : '', //当地平均工资
 			wageMax : '', //当地工资上限
 			wageMin : '', //当地工资下限
@@ -34,10 +38,8 @@ Page({
 		shareData : {
 			path : '/pages/index/index'
 		},
-		userInfo : {},
 		yearAwardAfter : '',
-		yearAward : '',
-		isSpecial : true
+		yearAward : ''
 	},
 	onLoad(option) {
 		var t = this;
@@ -49,7 +51,6 @@ Page({
                 });
             }
         });
-		t.getUserInfo();
 		t.getCity(option);
 	},
 	getCity(option) {
@@ -59,14 +60,14 @@ Page({
 			success:(data) => {
 				let city = option.city || data[0].regeocodeData.addressComponent.province;
 				wx.request({
-				    url: 'https://www.maxappa.com/api/wage.php',
+				    url: 'https://www.maxappa.com/api/detail.php',
 				    data:{
 					    all : 'city'
 				    },
 				    success: function(res) {
 						for(var i = 0;i<res.data.length;i++){
-							if(!(city.indexOf(res.data[i].s))){
-								var cityName = res.data[i].s;
+							if(!(city.indexOf(res.data[i].city))){
+								var cityName = res.data[i].city;
 								t.setData({
 									city: cityName
 								});
@@ -89,22 +90,25 @@ Page({
 	getCityData(city){
 		let t = this;
 		wx.request({
-		    url: 'https://www.maxappa.com/api/wage.php',
+		    url: 'https://www.maxappa.com/api/detail.php',
 		    data:{
 		        city : city
 		    },
 		    success: function(res) {
+		    	let data = res.data[0];
 		        t.setData({
 		            citydata : {
-		                e : res.data.e/100,
-		                f : res.data.f/100,
-		                m : res.data.m/100,
-		                u : res.data.u/100,
-		                wage : util.formatNum(res.data.money),
-		                wageMax : !(res.data.max_base_3j == undefined) ? util.formatNum(res.data.max_base_3j) : util.formatNum(res.data.money*3),
-		                wageMin : !(res.data.min_base_3j == undefined) ? util.formatNum(res.data.min_base_3j) : util.formatNum(res.data.money*0.6),
-		                gjjMax : !(res.data.max_base_gjj == undefined) ? util.formatNum(res.data.max_base_gjj) : util.formatNum(res.data.money*3),
-		                gjjMin : !(res.data.min_base_gjj == undefined) ? util.formatNum(res.data.min_base_gjj) : util.formatNum(res.data.money*0.6)
+			            yanglaoBl : util.formatNum(data.ylBl/100),
+		                gjjBl : util.formatNum(data.gjjBl/100),
+		                yiliaoBl : util.formatNum(data.yiliaoBl/100),
+		                shiyeBl : util.formatNum(data.shiyeBl/100),
+		                wage : util.formatNum(data.wage),
+			            dbyiliao_qian : data.dbyiliao_qian,
+			            dbyiliao_bl : data.dbyiliao_bl,
+		                wageMax : !(data.wageMax == undefined) ? util.formatNum(data.wageMax) : util.formatNum(data.wage*3),
+		                wageMin : !(data.wageMin == undefined) ? util.formatNum(data.wageMin) : util.formatNum(data.wage*0.6),
+		                gjjMax : !(data.gjjMax == undefined) ? util.formatNum(data.gjjMax) : util.formatNum(data.wage*3),
+		                gjjMin : !(data.gjjMin == undefined) ? util.formatNum(data.gjjMin) : util.formatNum(data.wage*0.6)
 		            }
 		        });
 		    }
@@ -123,11 +127,11 @@ Page({
 			insurance : insurance,
 			fund : fund
 		});
-		//获取用户缴纳对应金额
-		var	yanglao = t.getBase(insurance,citydata.wageMin,citydata.wageMax,citydata.e),
-			yiliao = t.getBase(insurance,citydata.wageMin,citydata.wageMax,citydata.m) + 3,
-			shiye = t.getBase(insurance,citydata.wageMin,citydata.wageMax,citydata.u),
-			zhufang = t.getBase(fund,citydata.gjjMin,citydata.gjjMax,citydata.f),
+		var	yibaoBl = citydata.yiliaoBl + citydata.dbyiliao_bl,
+			yanglao = t.getBase(insurance,citydata.wageMin,citydata.wageMax,citydata.yanglaoBl),
+			yiliao = t.getBase(insurance,citydata.wageMin,citydata.wageMax,yibaoBl) + citydata.dbyiliao_qian,
+			shiye = t.getBase(insurance,citydata.wageMin,citydata.wageMax,citydata.shiyeBl),
+			zhufang = t.getBase(fund,citydata.gjjMin,citydata.gjjMax,citydata.gjjBl),
 			shuiqian = util.formatNum(money - yanglao - yiliao - shiye - zhufang),
 			individualIncomeTax = util.formatNum(t.getTax(shuiqian)),
 			postTaxWage = util.formatNum(shuiqian - individualIncomeTax);
@@ -139,13 +143,16 @@ Page({
 			return false;
 		}else{
 			t.setData({
-				yanglao: yanglao,
+				yanglao : yanglao,
 				yiliao: yiliao,
 				shiye: shiye,
 				zhufang: zhufang,
+				gjjBl : util.formatNum(citydata.gjjBl * 100),
+				yanglaoBl : util.formatNum(citydata.yanglaoBl * 100),
+				yiliaoBl : util.formatNum(citydata.yiliaoBl * 100),
+				shiyeBl : util.formatNum(citydata.shiyeBl * 100),
 				postTaxWage: postTaxWage,
 				individualIncomeTax : individualIncomeTax,
-				gjjBl : util.formatNum(citydata.f * 100),
 				show : 'block'
 			});
 			t.getCanvasImage();
@@ -171,38 +178,11 @@ Page({
 			t.getCanvasImage();
 		}
 	},
-	getUserInfo(){
-		var t = this;
-		wx.getUserInfo({
-			success: function(res) {
-				var data = res.userInfo
-				var nickName = data.nickName
-				var avatarUrl = data.avatarUrl
-				wx.downloadFile({
-					url: avatarUrl,
-					success: function(res) {
-						if (res.statusCode === 200) {
-							t.setData({
-								userInfo : {
-									nickName : nickName,
-									avatarUrl : res.tempFilePath
-								}
-							});
-						}
-					}
-				});
-			}
-		})
-	},
 	getCanvasImage(){
 		let t = this;
 		const ctx = wx.createCanvasContext('firstCanvas');
 		ctx.save()
 		ctx.drawImage('../../static/images/qrcode.jpg',0,0,200,160);
-		ctx.restore()
-		ctx.arc(100, 80, 35, 0, 2*Math.PI)
-		ctx.clip()
-		ctx.drawImage(t.data.userInfo.avatarUrl,65,45,70,70);
 		ctx.restore()
 		ctx.draw();
 		t.getImage();

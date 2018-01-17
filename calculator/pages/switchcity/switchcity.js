@@ -11,7 +11,7 @@ Page({
 	    this.apHeight = 16;
 	    this.offsetTop = 80;
 	    wx.request({
-		    url: 'https://www.maxappa.com/api/wage.php',
+		    url: 'https://www.maxappa.com/api/detail.php',
 		    data:{
 			    all : 'city'
 		    },
@@ -26,7 +26,7 @@ Page({
 				    });
 				    citylist.forEach(function(val){
 					    if (val.initial == ABCArr[i]){
-						    list[i].datas.push(val.s)
+						    list[i].datas.push(val.city)
 					    }
 				    });
 			    }
@@ -57,7 +57,7 @@ Page({
     },
     handlerCity(e){
 	    wx.request({
-		    url: 'https://www.maxappa.com/api/wage.php',
+		    url: 'https://www.maxappa.com/api/detail.php',
 		    data:{
 			    city : e.currentTarget.dataset.text
 		    },

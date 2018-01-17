@@ -67,19 +67,19 @@
 							<view class="weui-cell__ft">￥{{individualIncomeTax}}</view>
 						</view>
 						<view class="weui-cell">
-							<view class="weui-cell__bd">养老保险金({{citydata.e*100}}%)</view>
+							<view class="weui-cell__bd">养老保险金({{yanglaoBl}}%)</view>
 							<view class="weui-cell__ft">￥{{yanglao}}</view>
 						</view>
 						<view class="weui-cell">
-							<view class="weui-cell__bd">医疗保险金({{citydata.m*100}}%)</view>
+							<view class="weui-cell__bd">医疗保险金({{yiliaoBl}}%)</view>
 							<view class="weui-cell__ft">￥{{yiliao}}</view>
 						</view>
 						<view class="weui-cell">
-							<view class="weui-cell__bd">失业保险金({{citydata.u*100}}%)</view>
+							<view class="weui-cell__bd">失业保险金({{shiyeBl}}%)</view>
 							<view class="weui-cell__ft">￥{{shiye}}</view>
 						</view>
 						<view class="weui-cell">
-							<view class="weui-cell__bd">住房公积金({{citydata.f*100}}%)</view>
+							<view class="weui-cell__bd">住房公积金({{gjjBl}}%)</view>
 							<view class="weui-cell__ft">￥{{zhufang}}</view>
 						</view>
 					</view>

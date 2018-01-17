@@ -4,9 +4,8 @@ const formatNum = n => {
 		console.log('格式不正确，请重新传值');
 		return false;
 	}
-	return Math.round(n * 100) / 100;
+	return Math.round(n * 1000) / 1000;
 }
-
 module.exports = {
 	formatNum: formatNum
 }
