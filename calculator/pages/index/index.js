@@ -105,10 +105,10 @@ Page({
 		                wage : util.formatNum(data.wage),
 			            dbyiliao_qian : data.dbyiliao_qian,
 			            dbyiliao_bl : data.dbyiliao_bl,
-		                wageMax : !(data.wageMax == undefined) ? util.formatNum(data.wageMax) : util.formatNum(data.wage*3),
-		                wageMin : !(data.wageMin == undefined) ? util.formatNum(data.wageMin) : util.formatNum(data.wage*0.6),
-		                gjjMax : !(data.gjjMax == undefined) ? util.formatNum(data.gjjMax) : util.formatNum(data.wage*3),
-		                gjjMin : !(data.gjjMin == undefined) ? util.formatNum(data.gjjMin) : util.formatNum(data.wage*0.6)
+		                wageMax : !(data.wageMax == 0) ? util.formatNum(data.wageMax) : util.formatNum(data.wage*3),
+		                wageMin : !(data.wageMin == 0) ? util.formatNum(data.wageMin) : util.formatNum(data.wage*0.6),
+		                gjjMax : !(data.gjjMax == 0) ? util.formatNum(data.gjjMax) : util.formatNum(data.wage*3),
+		                gjjMin : !(data.gjjMin == 0) ? util.formatNum(data.gjjMin) : util.formatNum(data.wage*0.6)
 		            }
 		        });
 		    }
