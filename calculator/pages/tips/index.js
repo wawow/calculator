@@ -51,8 +51,9 @@ Page({
 	onLoad(option){
 		var t = this;
 		t.setData({
-			activeIndex : option.activeIndex
-		})
+			activeIndex : option.activeIndex,
+			city : option.city
+		});
 		wx.getSystemInfo({
             success: function(res) {
                 t.setData({

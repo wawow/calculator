@@ -26,7 +26,7 @@ Page({
 				    });
 				    citylist.forEach(function(val){
 					    if (val.initial == ABCArr[i]){
-						    list[i].datas.push(val.city)
+						    list[i].datas.push(val.cityname)
 					    }
 				    });
 			    }

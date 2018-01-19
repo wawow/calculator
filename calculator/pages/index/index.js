@@ -55,37 +55,45 @@ Page({
 	},
 	getCity(option) {
 		let t = this;
-		var myAmapFun = new amapFile.AMapWX({key:'536e0fcadf78c63f2ad7f413a672462e'});
-		myAmapFun.getRegeo({
-			success:(data) => {
-				let city = option.city || data[0].regeocodeData.addressComponent.province;
+		var city = option.city;
+		if(city){
+			t.setData({
+				city: city
+			});
+			t.getCityData(city);
+		}else{
+			var myAmapFun = new amapFile.AMapWX({key:'536e0fcadf78c63f2ad7f413a672462e'});
+			myAmapFun.getRegeo({
+				success:(data) => {
+				let city = data[0].regeocodeData.addressComponent.province;
 				wx.request({
-				    url: 'https://www.maxappa.com/api/detail.php',
-				    data:{
-					    all : 'city'
-				    },
-				    success: function(res) {
+					url: 'https://www.maxappa.com/api/detail.php',
+					data:{
+						all : 'city'
+					},
+					success: function(res) {
 						for(var i = 0;i<res.data.length;i++){
-							if(!(city.indexOf(res.data[i].city))){
-								var cityName = res.data[i].city;
+							if(!(city.indexOf(res.data[i].cityname))){
+								var cityName = res.data[i].cityname;
 								t.setData({
 									city: cityName
 								});
 							}
 						}
 						t.getCityData(cityName);
-				    }
-			    });
+					}
+				});
 
 			},
-			fail: () => {
-				t.openToast('定位失败，请手动选择城市！');
-				t.setData({
-					city: '北京'
-				});
-				t.getCityData('北京');
-			}
-		});
+				fail: () => {
+					t.openToast('定位失败，请手动选择城市！');
+					t.setData({
+						city: '北京'
+					});
+					t.getCityData('北京');
+				}
+			});
+		}
 	},
 	getCityData(city){
 		let t = this;
@@ -95,7 +103,7 @@ Page({
 		        city : city
 		    },
 		    success: function(res) {
-		    	let data = res.data[0];
+		    	let data = res.data;
 		        t.setData({
 		            citydata : {
 			            yanglaoBl : util.formatNum(data.ylBl/100),
@@ -105,10 +113,10 @@ Page({
 		                wage : util.formatNum(data.wage),
 			            dbyiliao_qian : data.dbyiliao_qian,
 			            dbyiliao_bl : data.dbyiliao_bl,
-		                wageMax : !(data.wageMax == 0) ? util.formatNum(data.wageMax) : util.formatNum(data.wage*3),
-		                wageMin : !(data.wageMin == 0) ? util.formatNum(data.wageMin) : util.formatNum(data.wage*0.6),
-		                gjjMax : !(data.gjjMax == 0) ? util.formatNum(data.gjjMax) : util.formatNum(data.wage*3),
-		                gjjMin : !(data.gjjMin == 0) ? util.formatNum(data.gjjMin) : util.formatNum(data.wage*0.6)
+		                wageMax : !(data.wageMax == null) ? util.formatNum(data.wageMax) : util.formatNum(data.wage*3),
+		                wageMin : !(data.wageMin == null) ? util.formatNum(data.wageMin) : util.formatNum(data.wage*0.6),
+		                gjjMax : !(data.gjjMax == null) ? util.formatNum(data.gjjMax) : util.formatNum(data.wage*3),
+		                gjjMin : !(data.gjjMin == null) ? util.formatNum(data.gjjMin) : util.formatNum(data.wage*0.6)
 		            }
 		        });
 		    }
@@ -127,9 +135,9 @@ Page({
 			insurance : insurance,
 			fund : fund
 		});
-		var	yibaoBl = citydata.yiliaoBl + citydata.dbyiliao_bl,
+		var	yibaoBl = util.formatNum(citydata.yiliaoBl) + util.formatNum(citydata.dbyiliao_bl),
 			yanglao = t.getBase(insurance,citydata.wageMin,citydata.wageMax,citydata.yanglaoBl),
-			yiliao = t.getBase(insurance,citydata.wageMin,citydata.wageMax,yibaoBl) + citydata.dbyiliao_qian,
+			yiliao = t.getBase(insurance,citydata.wageMin,citydata.wageMax,yibaoBl) + util.formatNum(citydata.dbyiliao_qian),
 			shiye = t.getBase(insurance,citydata.wageMin,citydata.wageMax,citydata.shiyeBl),
 			zhufang = t.getBase(fund,citydata.gjjMin,citydata.gjjMax,citydata.gjjBl),
 			shuiqian = util.formatNum(money - yanglao - yiliao - shiye - zhufang),

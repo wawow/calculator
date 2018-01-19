@@ -67,6 +67,6 @@
 		</view>
 	</view>
 	<view class="weui-btn-area">
-		<navigator url="/pages/index/index" open-type="redirect" class="tips-btn">返回主页</navigator>
+		<navigator url="/pages/index/index?city={{city}}" open-type="redirect" class="tips-btn">返回主页</navigator>
 	</view>
 </view>
