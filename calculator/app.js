@@ -3,6 +3,7 @@ App({
 
 	},
 	globalData:{
-      defaultCity: '北京市'
+		baseUrl : 'https://www.maxappa.com/',
+		defaultCity: '北京市'
     }
 })

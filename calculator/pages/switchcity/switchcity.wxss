@@ -1,56 +1,28 @@
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10rpx 20rpx;
-}
-.header .h-city {
-  display: flex;
-  align-items: center;
-  font-size: 26rpx;
-  line-height: 1.0;
-  letter-spacing: 0.4px;
-  text-align: center;
-  color: #a8a8a8;
-}
-.header .h-city image {
-  width: 22rpx;
-  height: 27rpx;
-  margin-right: 16rpx;
-}
-
-.header .h-close image{
-  width: 40rpx;
-  height: 40rpx;
-}
 .now-city {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
   background: #f2f4f5;
   font-size: 22rpx;
-	line-height: 1.0;
 	color: #a8a8a8;
   padding: 18rpx 20rpx;
   border-bottom: 1rpx solid #dbdbdb;
 }
-.now-city .now-city-name {
+.now-city .hot-title{
+    margin-bottom:5px;
+}
+.now-city .weui-flex{
+margin:0 30rpx;
+}
+.now-city .hot-city-name {
   display: flex;
   background: white;
-  font-size: 30rpx;
-	line-height: 1.0;
-	letter-spacing: 0.4rpx;
-	color: #333333;
-  padding: 13rpx 33rpx;
-  border: solid 1rpx #dbdbdb;
-  margin-top: 18rpx;
-}
-
-.alphabet-list {
-
-}
-.alphabet-list .section-item {
-
+  font-size: 28rpx;
+	color: #1aad19;
+  border: solid 1rpx #1aad19;
+  border-radius:3px;
+  margin: 5px;
+padding: 0 10px;
+height: 2em;
+line-height: 2em;
+justify-content: center;
 }
 .alphabet-list .section-item .section-item-header {
   display: flex;
@@ -75,7 +47,7 @@
 }
 .alphanet-selector {
   position: absolute;
-  top: 80px;
+  top: 120rpx;
   right: 0;
   height: 432px;
   display: flex;
@@ -90,7 +62,7 @@
   justify-content: center;
   align-items: center;
   font-size: 12px;
-	color: #43c1f4;
-  padding: 3px 3px;
+	color: #1AAD19;
+  padding: 2px 3px;
   height: 12px;
 }

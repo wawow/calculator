@@ -67,7 +67,7 @@ Page({
 				success:(data) => {
 				let city = data[0].regeocodeData.addressComponent.province;
 				wx.request({
-					url: 'https://www.maxappa.com/api/detail.php',
+					url: app.globalData.baseUrl + 'api/detail.php',
 					data:{
 						all : 'city'
 					},
@@ -88,9 +88,9 @@ Page({
 				fail: () => {
 					t.openToast('定位失败，请手动选择城市！');
 					t.setData({
-						city: '北京'
+						city: app.globalData.defaultCity
 					});
-					t.getCityData('北京');
+					t.getCityData(app.globalData.defaultCity);
 				}
 			});
 		}
@@ -98,7 +98,7 @@ Page({
 	getCityData(city){
 		let t = this;
 		wx.request({
-		    url: 'https://www.maxappa.com/api/detail.php',
+		    url: app.globalData.baseUrl + 'api/detail.php',
 		    data:{
 		        city : city
 		    },
@@ -109,7 +109,7 @@ Page({
 			            yanglaoBl : util.formatNum(data.ylBl/100),
 		                gjjBl : util.formatNum(data.gjjBl/100),
 		                yiliaoBl : util.formatNum(data.yiliaoBl/100),
-		                shiyeBl : util.formatNum(data.shiyeBl/100),
+		                shiyeBl : util.formatNum2(data.shiyeBl/100),
 		                wage : util.formatNum(data.wage),
 			            dbyiliao_qian : data.dbyiliao_qian,
 			            dbyiliao_bl : data.dbyiliao_bl,
@@ -129,19 +129,19 @@ Page({
 			money = data.money,
 			citydata = data.citydata;
 		//公积金、社保如果用户自定义以自定义为主
-		var insurance = t.getBase(data.insurance,citydata.wageMin,citydata.wageMax),
-			fund = t.getBase(data.fund,citydata.gjjMin,citydata.gjjMax);
+		var insurance = util.getBase(data.insurance,citydata.wageMin,citydata.wageMax),
+			fund = util.getBase(data.fund,citydata.gjjMin,citydata.gjjMax);
 		t.setData({
 			insurance : insurance,
 			fund : fund
 		});
 		var	yibaoBl = util.formatNum(citydata.yiliaoBl) + util.formatNum(citydata.dbyiliao_bl),
-			yanglao = t.getBase(insurance,citydata.wageMin,citydata.wageMax,citydata.yanglaoBl),
-			yiliao = t.getBase(insurance,citydata.wageMin,citydata.wageMax,yibaoBl) + util.formatNum(citydata.dbyiliao_qian),
-			shiye = t.getBase(insurance,citydata.wageMin,citydata.wageMax,citydata.shiyeBl),
-			zhufang = t.getBase(fund,citydata.gjjMin,citydata.gjjMax,citydata.gjjBl),
+			yanglao = util.getBase(insurance,citydata.wageMin,citydata.wageMax,citydata.yanglaoBl),
+			yiliao = util.getBase(insurance,citydata.wageMin,citydata.wageMax,yibaoBl) + util.formatNum(citydata.dbyiliao_qian),
+			shiye = util.getBase(insurance,citydata.wageMin,citydata.wageMax,citydata.shiyeBl),
+			zhufang = util.getBase(fund,citydata.gjjMin,citydata.gjjMax,citydata.gjjBl),
 			shuiqian = util.formatNum(money - yanglao - yiliao - shiye - zhufang),
-			individualIncomeTax = util.formatNum(t.getTax(shuiqian)),
+			individualIncomeTax = util.formatNum(util.getTax(shuiqian)),
 			postTaxWage = util.formatNum(shuiqian - individualIncomeTax);
 		if(money == '' && t.data.activeIndex == 0){
 			t.openToast('请输入月薪');
@@ -171,7 +171,7 @@ Page({
 		let t = this,
 			data = t.data,
 			yearAward = data.yearAward;
-		var yearAwardAfter = util.formatNum(t.getYearTax(yearAward));
+		var yearAwardAfter = util.formatNum(util.getYearTax(yearAward));
 		if(yearAward == '' && t.data.activeIndex == 1){
 			t.openToast('请输入年终奖金');
 			t.setData({
@@ -193,10 +193,6 @@ Page({
 		ctx.drawImage('../../static/images/qrcode.jpg',0,0,200,160);
 		ctx.restore()
 		ctx.draw();
-		t.getImage();
-	},
-	getImage(){
-		var t = this;
 		wx.canvasToTempFilePath({
 			x: 0,
 			y: 0,
@@ -221,7 +217,7 @@ Page({
 			fail : (e) =>{
 				console.log(e)
 			}
-		})
+		});
 	},
 	setMoney(e) {
 		var t = this,
@@ -229,8 +225,8 @@ Page({
 			money = e.detail.value;
 		t.setData({
 			money: money,
-			insurance : t.getBase(money,data.citydata.wageMin,data.citydata.wageMax),
-			fund : t.getBase(money,data.citydata.gjjMin,data.citydata.gjjMax)
+			insurance : util.getBase(money,data.citydata.wageMin,data.citydata.wageMax),
+			fund : util.getBase(money,data.citydata.gjjMin,data.citydata.gjjMax)
 		});
 	},
 	setYearAward(e){
@@ -251,56 +247,6 @@ Page({
 			fund : e.detail.value
 		});
 	},
-	getBase(money,min,max,scale) {
-		var scale = scale || 1;
-		if(money < min){
-			return util.formatNum(min * scale);
-		}else if(money > max){
-			return util.formatNum(max * scale);
-		}else{
-			return util.formatNum(money * scale);
-		}
-	},
-	getTax(money){
-		var money = money - 3500;
-		if(money <= 0){
-			return 0;
-		}else if(money > 0 && money <= 1500){
-			return (util.formatNum(money*0.03))
-		}else if(money > 1500 && money <= 4500){
-			return (util.formatNum(money*0.1))-105
-		}else if(money > 4500 && money <= 9000){
-			return (util.formatNum(money*0.2))-555
-		}else if(money > 9000 && money <= 35000){
-			return (util.formatNum(money*0.25))-1005
-		}else if(money > 35000 && money <= 55000){
-			return (util.formatNum(money*0.3))-2755
-		}else if(money > 55000 && money <= 80000){
-			return (util.formatNum(money*0.35))-5505
-		}else if(money > 80000){
-			return (util.formatNum(money*0.45))-13505
-		}
-	},
-	getYearTax(money){
-		var moneyMonth = money / 12;
-		if(moneyMonth <= 0){
-			return 0;
-		}else if(moneyMonth > 0 && moneyMonth <= 1500){
-			return util.formatNum(money - (money * 0.03))
-		}else if(moneyMonth > 1500 && moneyMonth <= 4500){
-			return util.formatNum(money - (money * 0.1 - 105))
-		}else if(moneyMonth > 4500 && moneyMonth <= 9000){
-			return util.formatNum(money - (money * 0.2 - 555))
-		}else if(moneyMonth > 9000 && moneyMonth <= 35000){
-			return util.formatNum(money - (money * 0.25 - 1005))
-		}else if(moneyMonth > 35000 && moneyMonth <= 55000){
-			return util.formatNum(money - (money * 0.3 - 2755))
-		}else if(moneyMonth > 55000 && moneyMonth <= 80000){
-			return util.formatNum(money - (money * 0.35 - 5505))
-		}else if(moneyMonth > 80000){
-			return util.formatNum(money - (money * 0.45 - 13505))
-		}
-	},
 	openToast(name) {
 		wx.showModal({
 			content: name,
@@ -312,6 +258,8 @@ Page({
             sliderOffset: e.currentTarget.offsetLeft,
             activeIndex: e.currentTarget.id,
 			money : '',
+			insurance : '',
+			fund : '',
 			yearAward : '',
 			show : 'none',
 			showYear : 'none',

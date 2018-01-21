@@ -1,24 +1,50 @@
 <scroll-view scroll-y style="height: {{windowHeight}}" scroll-into-view="{{alpha}}">
     <view class="alphabet">
-        <!--<view class="now-city">-->
-            <!--<text>定位城市</text>-->
-            <!--<text class="now-city-name" bindtap="handlerCity" data-text="杭州">杭州</text>-->
-        <!--</view>-->
+        <view class="now-city" id="Top">
+            <text class="hot-title">热门城市</text>
+            <view class="weui-flex">
+                <view class="weui-flex__item">
+                    <navigator url="/pages/index/index?city=北京" class="hot-city-name" open-type="redirect">北京市</navigator>
+                </view>
+                <view class="weui-flex__item">
+                    <navigator url="/pages/index/index?city=上海" class="hot-city-name" open-type="redirect">上海市</navigator>
+                </view>
+                <view class="weui-flex__item">
+                    <navigator url="/pages/index/index?city=广州" class="hot-city-name" open-type="redirect">广州市</navigator>
+                </view>
+                <view class="weui-flex__item">
+                    <navigator url="/pages/index/index?city=深圳" class="hot-city-name" open-type="redirect">深圳市</navigator>
+                </view>
+            </view>
+            <view class="weui-flex">
+                <view class="weui-flex__item">
+                    <navigator url="/pages/index/index?city=天津" class="hot-city-name" open-type="redirect">天津市</navigator>
+                </view>
+                <view class="weui-flex__item">
+                    <navigator url="/pages/index/index?city=重庆" class="hot-city-name" open-type="redirect">重庆市</navigator>
+                </view>
+                <view class="weui-flex__item">
+                    <navigator url="/pages/index/index?city=杭州" class="hot-city-name" open-type="redirect">杭州市</navigator>
+                </view>
+                <view class="weui-flex__item">
+                    <navigator url="/pages/index/index?city=南京" class="hot-city-name" open-type="redirect">南京市</navigator>
+                </view>
+            </view>
+        </view>
         <view class="alphabet-list">
-            <view wx:for="{{list}}" wx:key="unique" id="{{item.alphabet}}" class="section-item">
+            <view wx:for="{{list}}" wx:key="unique" id="{{item.alphabet}}" class="section-item" wx:if="{{index!=0}}">
                 <view class="section-item-header">
                     {{item.alphabet}}
                 </view>
                 <view wx:for="{{item.datas}}" wx:key="unique" wx:for-item="cell" wx:for-index="cellIndex" class="section-item-cells">
                     <navigator url="/pages/index/index?city={{cell}}" class="section-item-cell {{cellIndex != (item.datas.length-1) ? 'border-bottom':''}}" open-type="redirect">{{cell}}</navigator>
-                    
                 </view>
             </view>
         </view>
     </view>
 </scroll-view>
 <view data-id="selector" catchtouchstart="handlerAlphaTap" catchtouchmove="handlerMove" class="alphanet-selector">
-    <view data-ap="{{item.alphabet}}" wx:for="{{list}}" wx:key="unique" class="selector-one">
+    <view data-ap="{{item.alphabet}}" wx:for="{{list}}" wx:for-index="listIndex" wx:key="unique" class="selector-one {{alphaOn ? 'on': ''}}">
         {{item.alphabet}}
     </view>
 </view>

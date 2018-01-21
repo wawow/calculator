@@ -60,7 +60,7 @@
 					<view class="weui-cells weui-cells_after-title">
 						<view class="weui-cell">
 							<view class="weui-cell__bd">税后工资</view>
-							<view class="weui-cell__ft">￥{{postTaxWage}}</view>
+							<view class="weui-cell__ft m_red">￥{{postTaxWage}}</view>
 						</view>
 						<view class="weui-cell">
 							<view class="weui-cell__bd">个人所得税</view>
@@ -108,7 +108,7 @@
 					<view class="weui-cells weui-cells_after-title">
 						<view class="weui-cell">
 							<view class="weui-cell__bd">税后年终奖</view>
-							<view class="weui-cell__ft">￥{{yearAwardAfter}}</view>
+							<view class="weui-cell__ft m_red">￥{{yearAwardAfter}}</view>
 						</view>
 					</view>
 				</view>
