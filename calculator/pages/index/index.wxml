@@ -32,7 +32,7 @@
 							<view class="weui-label">月薪(元)</view>
 						</view>
 						<view class="weui-cell__bd">
-							<input class="weui-input" bindinput="setMoney" type="number" value="{{money}}" placeholder="请输入月薪" focus="true"/>
+							<input class="weui-input" bindinput="setMoney" type="digit" value="{{money}}" placeholder="请输入月薪" focus="true"/>
 						</view>
 					</view>
 					<view class="weui-cell weui-cell_input">
@@ -40,7 +40,7 @@
 							<view class="weui-label">社保基数</view>
 						</view>
 						<view class="weui-cell__bd">
-							<input class="weui-input" bindinput="setInsurance" type="number" value="{{insurance}}"/>
+							<input class="weui-input" bindinput="setInsurance" type="digit" value="{{insurance}}"/>
 						</view>
 					</view>
 					<view class="weui-cell weui-cell_input">
@@ -48,9 +48,35 @@
 							<view class="weui-label">公积金基数</view>
 						</view>
 						<view class="weui-cell__bd">
-							<input class="weui-input" bindinput="setFund" type="number" value="{{fund}}"/>
+							<input class="weui-input" bindinput="setFund" type="digit" value="{{fund}}"/>
 						</view>
 					</view>
+                    <view class="weui-cells weui-cells_after-title">
+                        <view class="weui-cell weui-cell_switch">
+                            <view class="weui-cell__bd">自定义社保基数</view>
+                            <view class="weui-cell__ft">
+                                <switch checked="{{custom}}" bindchange="switchChange"/>
+                            </view>
+                        </view>
+                    </view>
+                    <view class="zdBox {{custom ? 'show' : 'hide'}}">
+                        <view class="weui-cells__title">养老保险比例<span class="numfont fr">{{zdYangLaoBl}}%</span></view>
+                        <view class="page__bd page__bd_spacing">
+                            <slider min="0" bindchanging="getZdYangLaoBl" bindchange="getZdYangLaoBl" max="8" value="{{zdYangLaoBl}}"/>
+                        </view>
+                        <view class="weui-cells__title">医疗保险比例<span class="numfont fr">{{zdYlBl}}%</span></view>
+                        <view class="page__bd page__bd_spacing">
+                            <slider min="0" bindchanging="getZdYlBl" bindchange="getZdYlBl" step="0.1" max="2" value="{{zdYlBl}}"/>
+                        </view>
+                        <view class="weui-cells__title">公积金比例<span class="numfont fr">{{zdGjjBl}}%</span></view>
+                        <view class="page__bd page__bd_spacing">
+                            <slider min="0" bindchanging="getZdGjjBl" bindchange="getZdGjjBl" max="12" value="{{zdGjjBl}}"/>
+                        </view>
+                        <view class="weui-cells__title">失业保险金比例<span class="numfont fr">{{zdShiYeBl}}%</span></view>
+                        <view class="page__bd page__bd_spacing">
+                            <slider min="0" bindchanging="getZdShiYeBl" bindchange="getZdShiYeBl" max="1" step="0.1" value="{{zdShiYeBl}}"/>
+                        </view>
+                    </view>
 				</view>
 				<view class="weui-btn-area">
 					<button class="weui-btn" bindtap="count" type="primary">计算</button>

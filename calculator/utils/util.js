@@ -23,7 +23,7 @@ const formatNum2 = n => {
     }
 }
 const getBase = (money,min,max,scale) =>{
-	var scale = scale || 1;
+	var scale = scale == 0 ? 0 : scale || 1;
 	if(money < min){
 		return formatNum(min * scale);
 	}else if(money > max){

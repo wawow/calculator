@@ -15,6 +15,11 @@ Page({
         sliderOffset: 0,
         sliderLeft: 0,
 		city : '请选择城市',
+		custom : false, //自定义社保基数
+		zdShiYeBl : 0.5, //自定义失业保险金比例
+		zdGjjBl : 10, //自定义公积金比例
+		zdYangLaoBl : 8, //自定义公积金比例
+		zdYlBl : 2, //自定义公积金比例
 		citydata : {
 			yanglao : '', //养老金
 			gjj : '', //公积金
@@ -135,11 +140,21 @@ Page({
 			insurance : insurance,
 			fund : fund
 		});
-		var	yibaoBl = util.formatNum(citydata.yiliaoBl) + util.formatNum(citydata.dbyiliao_bl),
-			yanglao = util.getBase(insurance,citydata.wageMin,citydata.wageMax,citydata.yanglaoBl),
-			yiliao = util.getBase(insurance,citydata.wageMin,citydata.wageMax,yibaoBl) + util.formatNum(citydata.dbyiliao_qian),
-			shiye = util.getBase(insurance,citydata.wageMin,citydata.wageMax,citydata.shiyeBl),
-			zhufang = util.getBase(fund,citydata.gjjMin,citydata.gjjMax,citydata.gjjBl),
+		if(data.custom){
+			var gjjBl = util.formatNum(data.zdGjjBl/100);
+			var syBl = util.formatNum2(data.zdShiYeBl/100);
+			var yanglaoBl = util.formatNum(data.zdYangLaoBl/100);
+			var ylBl = util.formatNum2(data.zdYlBl/100);
+		}else{
+			var gjjBl = citydata.gjjBl;
+			var syBl = citydata.shiyeBl;
+			var yanglaoBl = citydata.yanglaoBl;
+			var ylBl = util.formatNum(citydata.yiliaoBl) + util.formatNum(citydata.dbyiliao_bl);
+		}
+		var	yanglao = util.getBase(insurance,citydata.wageMin,citydata.wageMax,yanglaoBl),
+			yiliao = util.getBase(insurance,citydata.wageMin,citydata.wageMax,ylBl) + util.formatNum(citydata.dbyiliao_qian),
+			shiye = util.getBase(insurance,citydata.wageMin,citydata.wageMax,syBl),
+			zhufang = util.getBase(fund,citydata.gjjMin,citydata.gjjMax,gjjBl),
 			shuiqian = util.formatNum(money - yanglao - yiliao - shiye - zhufang),
 			individualIncomeTax = util.formatNum(util.getTax(shuiqian)),
 			postTaxWage = util.formatNum(shuiqian - individualIncomeTax);
@@ -155,10 +170,10 @@ Page({
 				yiliao: yiliao,
 				shiye: shiye,
 				zhufang: zhufang,
-				gjjBl : util.formatNum(citydata.gjjBl * 100),
-				yanglaoBl : util.formatNum(citydata.yanglaoBl * 100),
-				yiliaoBl : util.formatNum(citydata.yiliaoBl * 100),
-				shiyeBl : util.formatNum(citydata.shiyeBl * 100),
+				gjjBl : util.formatNum(gjjBl * 100),
+				yanglaoBl : util.formatNum(yanglaoBl * 100),
+				yiliaoBl : util.formatNum(ylBl * 100),
+				shiyeBl : util.formatNum(syBl * 100),
 				postTaxWage: postTaxWage,
 				individualIncomeTax : individualIncomeTax,
 				show : 'block'
@@ -245,6 +260,31 @@ Page({
 	setFund(e) {
 		this.setData({
 			fund : e.detail.value
+		});
+	},
+	switchChange(e){
+		this.setData({
+			custom : e.detail.value
+		});
+	},
+	getZdShiYeBl(e){
+		this.setData({
+			zdShiYeBl : util.formatNum(e.detail.value)
+		});
+	},
+	getZdGjjBl(e){
+		this.setData({
+			zdGjjBl : util.formatNum(e.detail.value)
+		});
+	},
+	getZdYangLaoBl(e){
+		this.setData({
+			zdYangLaoBl : util.formatNum(e.detail.value)
+		});
+	},
+	getZdYlBl(e){
+		this.setData({
+			zdYlBl : util.formatNum(e.detail.value)
 		});
 	},
 	openToast(name) {

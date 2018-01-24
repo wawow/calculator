@@ -6,3 +6,15 @@
 .font16{
 	font-size:16px;
 }
+.show{
+	display: block;
+}
+.hide{
+	display: none;
+}
+.fl{
+	float: left;
+}
+.fr{
+	float: right;
+}

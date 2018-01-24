@@ -15,6 +15,7 @@
 }
 .weui-cell_access{
 	padding:10px 0;
+	justify-content: left;
 }
 .city{
 	width:100%;
@@ -73,4 +74,12 @@
 .m_red{
 	font-weight:bold;
 	color:red;
+}
+
+.zdBox{
+	padding: 0 0 .5em 0;
+}
+.numfont{
+	color: #000;
+	font-weight: bold;
 }
