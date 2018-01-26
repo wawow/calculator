@@ -3,31 +3,31 @@
         <view class="now-city" id="Top">
             <text class="hot-title">热门城市</text>
             <view class="weui-flex">
-                <view class="weui-flex__item">
-                    <navigator url="/pages/index/index?city=北京" class="hot-city-name" open-type="redirect">北京市</navigator>
+                <view class="weui-flex__item" data-city="北京" bindtap="changeCity">
+                    <text class="hot-city-name">北京市</text>
                 </view>
-                <view class="weui-flex__item">
-                    <navigator url="/pages/index/index?city=上海" class="hot-city-name" open-type="redirect">上海市</navigator>
+                <view class="weui-flex__item" data-city="上海" bindtap="changeCity">
+                    <text class="hot-city-name">上海市</text>
                 </view>
-                <view class="weui-flex__item">
-                    <navigator url="/pages/index/index?city=广州" class="hot-city-name" open-type="redirect">广州市</navigator>
+                <view class="weui-flex__item" data-city="广州" bindtap="changeCity">
+                    <text class="hot-city-name">广州市</text>
                 </view>
-                <view class="weui-flex__item">
-                    <navigator url="/pages/index/index?city=深圳" class="hot-city-name" open-type="redirect">深圳市</navigator>
+                <view class="weui-flex__item" data-city="深圳" bindtap="changeCity">
+                    <text class="hot-city-name">深圳市</text>
                 </view>
             </view>
             <view class="weui-flex">
-                <view class="weui-flex__item">
-                    <navigator url="/pages/index/index?city=天津" class="hot-city-name" open-type="redirect">天津市</navigator>
+                <view class="weui-flex__item" data-city="天津" bindtap="changeCity">
+                    <text class="hot-city-name">天津市</text>
                 </view>
-                <view class="weui-flex__item">
-                    <navigator url="/pages/index/index?city=重庆" class="hot-city-name" open-type="redirect">重庆市</navigator>
+                <view class="weui-flex__item" data-city="重庆" bindtap="changeCity">
+                    <text class="hot-city-name">重庆市</text>
                 </view>
-                <view class="weui-flex__item">
-                    <navigator url="/pages/index/index?city=杭州" class="hot-city-name" open-type="redirect">杭州市</navigator>
+                <view class="weui-flex__item" data-city="杭州" bindtap="changeCity">
+                    <text class="hot-city-name">杭州市</text>
                 </view>
-                <view class="weui-flex__item">
-                    <navigator url="/pages/index/index?city=南京" class="hot-city-name" open-type="redirect">南京市</navigator>
+                <view class="weui-flex__item" data-city="南京" bindtap="changeCity">
+                    <text class="hot-city-name">南京市</text>
                 </view>
             </view>
         </view>
@@ -36,8 +36,8 @@
                 <view class="section-item-header">
                     {{item.alphabet}}
                 </view>
-                <view wx:for="{{item.datas}}" wx:key="unique" wx:for-item="cell" wx:for-index="cellIndex" class="section-item-cells">
-                    <navigator url="/pages/index/index?city={{cell}}" class="section-item-cell {{cellIndex != (item.datas.length-1) ? 'border-bottom':''}}" open-type="redirect">{{cell}}</navigator>
+                <view wx:for="{{item.datas}}" data-city="{{cell}}" bindtap="changeCity" wx:key="unique" wx:for-item="cell" wx:for-index="cellIndex" class="section-item-cells">
+                    <text class="section-item-cell {{cellIndex != (item.datas.length-1) ? 'border-bottom':''}}">{{cell}}</text>
                 </view>
             </view>
         </view>

@@ -59,5 +59,11 @@ Page({
                 });
             }
         }
-    }
+    },
+	changeCity(e){
+    	let city = e.currentTarget.dataset.city;
+		wx.reLaunch({
+			url: '/pages/index/index?city='+city+''
+		});
+	}
 })

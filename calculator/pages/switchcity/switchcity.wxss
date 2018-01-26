@@ -41,6 +41,9 @@ justify-content: center;
 	line-height: 1.0;
 	color: #333333;
   padding: 29rpx 0;
+	width: auto;
+	height: auto;
+	display: block;
 }
 .border-bottom {
   border-bottom: 1rpx solid #dbdbdb;
