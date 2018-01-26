@@ -12,7 +12,10 @@ Page({
         this.apHeight = 16;
         this.offsetTop = 80;
         var list = [{alphabet: 'Top', datas: []}];
-        wx.showLoading();
+	    wx.showToast({
+		    title: '列表加载中',
+		    icon: 'loading'
+	    });
         wx.request({
             url: app.globalData.baseUrl + 'api/detail.php',
             data: {
@@ -35,7 +38,7 @@ Page({
                 t.setData({
                     list: list
                 });
-	            wx.hideLoading();
+	            wx.hideToast();
             }
         });
         t.setData({

@@ -68,5 +68,11 @@ Page({
             sliderOffset: e.currentTarget.offsetLeft,
             activeIndex: e.currentTarget.id
         });
-    }
+    },
+	return(){
+		let city = this.data.city;
+		wx.reLaunch({
+			url: '/pages/index/index?city='+city+''
+		});
+	}
 })

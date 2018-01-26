@@ -112,7 +112,8 @@
 				</view>
 				<view class="weui-btn-area" style="display:{{show}}">
 					<button class="weui-btn" type="primary" open-type="share" plain="true">分享给朋友一起算</button>
-					<navigator url="/pages/tips/index?activeIndex=0&city={{city}}" open-type="redirect" class="tips-btn">个税计算规则</navigator>
+					<navigator url="/pages/tips/index?activeIndex=0&city={{city}}" open-type="navigate" class="tips-btn">个税计算规则</navigator>
+                    <button class="feedback" open-type="contact">意见&反馈</button>
 				</view>
 			</view>
 			<view class="weui-tab__content" hidden="{{activeIndex != 1}}">
@@ -140,7 +141,8 @@
 				</view>
 				<view class="weui-btn-area" style="display:{{showYear}}">
 					<button class="weui-btn" type="primary" open-type="share" plain="true">分享给朋友一起算</button>
-					<navigator url="/pages/tips/index?activeIndex=1&city={{city}}" open-type="redirect" class="tips-btn">年终奖计算规则</navigator>
+					<navigator url="/pages/tips/index?activeIndex=1&city={{city}}" open-type="navigate" class="tips-btn">年终奖计算规则</navigator>
+                    <button class="feedback" open-type="contact">意见&反馈</button>
 				</view>
 			</view>
 		</view>
