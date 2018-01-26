@@ -129,22 +129,20 @@ Page({
 	},
 	count() {
 		//获取税后工资
-		let t = this,
-			data = t.data,
-			money = data.money,
-			citydata = data.citydata;
-		//公积金、社保如果用户自定义以自定义为主
-		var insurance = util.getBase(data.insurance,citydata.wageMin,citydata.wageMax),
-			fund = util.getBase(data.fund,citydata.gjjMin,citydata.gjjMax);
+		let t = this;
+		const {money,citydata,custom,insurance,fund,zdGjjBl,zdShiYeBl,zdYangLaoBl,zdYlBl,activeIndex} = t.data;
+		var getInsurance = util.getBase(insurance,citydata.wageMin,citydata.wageMax),
+			getFund = util.getBase(fund,citydata.gjjMin,citydata.gjjMax);
 		t.setData({
-			insurance : insurance,
-			fund : fund
+			insurance : getInsurance,
+			fund : getFund
 		});
-		if(data.custom){
-			var gjjBl = util.formatNum(data.zdGjjBl/100);
-			var syBl = util.formatNum2(data.zdShiYeBl/100);
-			var yanglaoBl = util.formatNum(data.zdYangLaoBl/100);
-			var ylBl = util.formatNum2(data.zdYlBl/100);
+		//公积金、社保如果用户自定义以自定义为主
+		if(custom){
+			var gjjBl = util.formatNum(zdGjjBl/100);
+			var syBl = util.formatNum2(zdShiYeBl/100);
+			var yanglaoBl = util.formatNum(zdYangLaoBl/100);
+			var ylBl = util.formatNum2(zdYlBl/100);
 		}else{
 			var gjjBl = citydata.gjjBl;
 			var syBl = citydata.shiyeBl;
@@ -158,7 +156,7 @@ Page({
 			shuiqian = util.formatNum(money - yanglao - yiliao - shiye - zhufang),
 			individualIncomeTax = util.formatNum(util.getTax(shuiqian)),
 			postTaxWage = util.formatNum(shuiqian - individualIncomeTax);
-		if(money == '' && t.data.activeIndex == 0){
+		if(money == '' && activeIndex == 0){
 			t.openToast('请输入月薪');
 			t.setData({
 				show : 'none'
@@ -183,11 +181,10 @@ Page({
 	},
 	countYearAward() {
 		//获取年终奖
-		let t = this,
-			data = t.data,
-			yearAward = data.yearAward;
+		let t = this;
+		const {yearAward,activeIndex} = t.data;;
 		var yearAwardAfter = util.formatNum(util.getYearTax(yearAward));
-		if(yearAward == '' && t.data.activeIndex == 1){
+		if(yearAward == '' && activeIndex == 1){
 			t.openToast('请输入年终奖金');
 			t.setData({
 				showYear : 'none'
@@ -235,18 +232,17 @@ Page({
 		});
 	},
 	setMoney(e) {
-		var t = this,
-			data = t.data,
+		let t = this,
 			money = e.detail.value;
+		const {citydata} = t.data;
 		t.setData({
 			money: money,
-			insurance : util.getBase(money,data.citydata.wageMin,data.citydata.wageMax),
-			fund : util.getBase(money,data.citydata.gjjMin,data.citydata.gjjMax)
+			insurance : util.getBase(money,citydata.wageMin,citydata.wageMax),
+			fund : util.getBase(money,citydata.gjjMin,citydata.gjjMax)
 		});
 	},
 	setYearAward(e){
 		var t = this,
-			data = t.data,
 			yearAward = e.detail.value;
 		t.setData({
 			yearAward: yearAward
