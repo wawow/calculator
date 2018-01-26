@@ -12,6 +12,7 @@ Page({
         this.apHeight = 16;
         this.offsetTop = 80;
         var list = [{alphabet: 'Top', datas: []}];
+        wx.showLoading();
         wx.request({
             url: app.globalData.baseUrl + 'api/detail.php',
             data: {
@@ -34,6 +35,7 @@ Page({
                 t.setData({
                     list: list
                 });
+	            wx.hideLoading();
             }
         });
         t.setData({
