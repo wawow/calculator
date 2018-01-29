@@ -1,4 +1,4 @@
-const formatNum = n => {
+const formatNum = (n,m) => {
     if (n == null) {
         return 0;
     } else {
@@ -7,19 +7,8 @@ const formatNum = n => {
             console.log('格式不正确，请重新传值');
             return false;
         }
-        return Math.round(n * 100) / 100;
-    }
-}
-const formatNum2 = n => {
-    if (n == null) {
-        return 0;
-    } else {
-        n = parseFloat(n);
-        if (isNaN(n)) {
-            console.log('格式不正确，请重新传值');
-            return false;
-        }
-        return Math.round(n * 1000) / 1000;
+        m = !m ? 100 : 1000;
+        return Math.round(n * m) / m;
     }
 }
 const getBase = (money,min,max,scale) =>{
@@ -32,50 +21,31 @@ const getBase = (money,min,max,scale) =>{
 		return formatNum(money * scale);
 	}
 }
-const getTax = money => {
-    var money = money - 3500;
-    if (money <= 0) {
+const getTax = (money,isYear) => {
+    var moneyAfter = !isYear ? (money - 3500) : (money / 12);
+    const taxS = [0,105,555,1005,2755,5505,13505];
+    const rateS = [0.03,0.1,0.2,0.25,0.3,0.35,0.45];
+    if (moneyAfter <= 0) {
         return 0;
-    } else if (money > 0 && money <= 1500) {
-        return (formatNum(money * 0.03))
-    } else if (money > 1500 && money <= 4500) {
-        return (formatNum(money * 0.1)) - 105
-    } else if (money > 4500 && money <= 9000) {
-        return (formatNum(money * 0.2)) - 555
-    } else if (money > 9000 && money <= 35000) {
-        return (formatNum(money * 0.25)) - 1005
-    } else if (money > 35000 && money <= 55000) {
-        return (formatNum(money * 0.3)) - 2755
-    } else if (money > 55000 && money <= 80000) {
-        return (formatNum(money * 0.35)) - 5505
-    } else if (money > 80000) {
-        return (formatNum(money * 0.45)) - 13505
+    } else if (moneyAfter > 0 && moneyAfter <= 1500) {
+    	return !isYear ? (formatNum(moneyAfter * rateS[0] - taxS[0])) : formatNum(money - (money * rateS[0]));
+    } else if (moneyAfter > 1500 && moneyAfter <= 4500) {
+	    return !isYear ? (formatNum(moneyAfter * rateS[1] - taxS[1])) : formatNum(money - (money * rateS[1] - taxS[1]));
+    } else if (moneyAfter > 4500 && moneyAfter <= 9000) {
+	    return !isYear ? (formatNum(moneyAfter * rateS[2] - taxS[2])) : formatNum(money - (money * rateS[2] - taxS[2]));
+    } else if (moneyAfter > 9000 && moneyAfter <= 35000) {
+	    return !isYear ? (formatNum(moneyAfter * rateS[3] - taxS[3])) : formatNum(money - (money * rateS[3] - taxS[3]));
+    } else if (moneyAfter > 35000 && moneyAfter <= 55000) {
+	    return !isYear ? (formatNum(moneyAfter * rateS[4] - taxS[4])) : formatNum(money - (money * rateS[4] - taxS[4]));
+    } else if (moneyAfter > 55000 && moneyAfter <= 80000) {
+	    return !isYear ? (formatNum(moneyAfter * rateS[5] - taxS[5])) : formatNum(money - (money * rateS[5] - taxS[5]));
+    } else if (moneyAfter > 80000) {
+	    return !isYear ? (formatNum(moneyAfter * rateS[6] - taxS[6])) : formatNum(money - (money * rateS[6] - taxS[6]));
     }
 }
-const getYearTax = money =>{
-	var moneyMonth = money / 12;
-	if(moneyMonth <= 0){
-		return 0;
-	}else if(moneyMonth > 0 && moneyMonth <= 1500){
-		return formatNum(money - (money * 0.03))
-	}else if(moneyMonth > 1500 && moneyMonth <= 4500){
-		return formatNum(money - (money * 0.1 - 105))
-	}else if(moneyMonth > 4500 && moneyMonth <= 9000){
-		return formatNum(money - (money * 0.2 - 555))
-	}else if(moneyMonth > 9000 && moneyMonth <= 35000){
-		return formatNum(money - (money * 0.25 - 1005))
-	}else if(moneyMonth > 35000 && moneyMonth <= 55000){
-		return formatNum(money - (money * 0.3 - 2755))
-	}else if(moneyMonth > 55000 && moneyMonth <= 80000){
-		return formatNum(money - (money * 0.35 - 5505))
-	}else if(moneyMonth > 80000){
-		return formatNum(money - (money * 0.45 - 13505))
-	}
-}
+
 module.exports = {
     formatNum: formatNum,
-    formatNum2:formatNum2,
     getTax: getTax,
-	getYearTax: getYearTax,
 	getBase: getBase
 }

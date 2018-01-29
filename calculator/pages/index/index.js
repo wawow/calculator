@@ -111,13 +111,12 @@ Page({
 		    	let data = res.data;
 		        t.setData({
 		            citydata : {
-			            yanglaoBl : util.formatNum(data.ylBl/100),
-		                gjjBl : util.formatNum(data.gjjBl/100),
-		                yiliaoBl : util.formatNum(data.yiliaoBl/100),
-		                shiyeBl : util.formatNum2(data.shiyeBl/100),
+			            yanglaoBl : data.ylBl,
+		                gjjBl : data.gjjBl,
+		                yiliaoBl : data.yiliaoBl,
+		                shiyeBl : data.shiyeBl,
 		                wage : util.formatNum(data.wage),
 			            dbyiliao_qian : data.dbyiliao_qian,
-			            dbyiliao_bl : data.dbyiliao_bl,
 		                wageMax : !(data.wageMax == null) ? util.formatNum(data.wageMax) : util.formatNum(data.wage*3),
 		                wageMin : !(data.wageMin == null) ? util.formatNum(data.wageMin) : util.formatNum(data.wage*0.6),
 		                gjjMax : !(data.gjjMax == null) ? util.formatNum(data.gjjMax) : util.formatNum(data.wage*3),
@@ -140,21 +139,21 @@ Page({
 		//公积金、社保如果用户自定义以自定义为主
 		if(custom){
 			var gjjBl = util.formatNum(zdGjjBl/100);
-			var syBl = util.formatNum2(zdShiYeBl/100);
+			var syBl = util.formatNum(zdShiYeBl/100,true);
 			var yanglaoBl = util.formatNum(zdYangLaoBl/100);
-			var ylBl = util.formatNum2(zdYlBl/100);
+			var ylBl = util.formatNum(zdYlBl/100,true);
 		}else{
-			var gjjBl = citydata.gjjBl;
-			var syBl = citydata.shiyeBl;
-			var yanglaoBl = citydata.yanglaoBl;
-			var ylBl = util.formatNum(citydata.yiliaoBl) + util.formatNum(citydata.dbyiliao_bl);
+			var gjjBl = util.formatNum(citydata.gjjBl/100);
+			var syBl = util.formatNum(citydata.shiyeBl/100,true);
+			var yanglaoBl = util.formatNum(citydata.yanglaoBl/100);
+			var ylBl = util.formatNum(citydata.yiliaoBl/100);
 		}
 		var	yanglao = util.getBase(insurance,citydata.wageMin,citydata.wageMax,yanglaoBl),
-			yiliao = util.getBase(insurance,citydata.wageMin,citydata.wageMax,ylBl) + util.formatNum(citydata.dbyiliao_qian),
+			yiliao = util.getBase(insurance,citydata.wageMin,citydata.wageMax,ylBl),
 			shiye = util.getBase(insurance,citydata.wageMin,citydata.wageMax,syBl),
 			zhufang = util.getBase(fund,citydata.gjjMin,citydata.gjjMax,gjjBl),
-			shuiqian = util.formatNum(money - yanglao - yiliao - shiye - zhufang),
-			individualIncomeTax = util.formatNum(util.getTax(shuiqian)),
+			shuiqian = util.formatNum(money - yanglao - yiliao - shiye - zhufang - citydata.dbyiliao_qian),
+			individualIncomeTax = util.getTax(shuiqian,false),
 			postTaxWage = util.formatNum(shuiqian - individualIncomeTax);
 		if(money == '' && activeIndex == 0){
 			t.openToast('请输入月薪');
@@ -165,7 +164,7 @@ Page({
 		}else{
 			t.setData({
 				yanglao : yanglao,
-				yiliao: yiliao,
+				yiliao: util.formatNum(yiliao + citydata.dbyiliao_qian),
 				shiye: shiye,
 				zhufang: zhufang,
 				gjjBl : util.formatNum(gjjBl * 100),
@@ -183,7 +182,7 @@ Page({
 		//获取年终奖
 		let t = this;
 		const {yearAward,activeIndex} = t.data;;
-		var yearAwardAfter = util.formatNum(util.getYearTax(yearAward));
+		var yearAwardAfter = util.formatNum(util.getTax(yearAward,true));
 		if(yearAward == '' && activeIndex == 1){
 			t.openToast('请输入年终奖金');
 			t.setData({
@@ -236,7 +235,7 @@ Page({
 			money = e.detail.value;
 		const {citydata} = t.data;
 		t.setData({
-			money: money,
+			money: util.formatNum(money),
 			insurance : util.getBase(money,citydata.wageMin,citydata.wageMax),
 			fund : util.getBase(money,citydata.gjjMin,citydata.gjjMax)
 		});
